@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import {createRouter, createWebHashHistory } from 'vue-router'
 import NewChat from '../views/NewChat.vue'
 import Chat from '../views/Chat.vue'
 import About from "../views/About.vue";
