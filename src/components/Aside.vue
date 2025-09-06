@@ -1,28 +1,32 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink } from 'vue-router'
+import { ref, onMounted } from 'vue'
 
 const topics = ref([])
 const drawerOpen = ref(true)
-const isMobile = ref(window.innerWidth < 768)
+const isMobile = ref(false)
+const activeTopicId = ref(null)
 
 onMounted(() => {
   const savedTopics = localStorage.getItem("topics")
   if (savedTopics) topics.value = JSON.parse(savedTopics)
 
+  isMobile.value = window.innerWidth < 768
   drawerOpen.value = !isMobile.value
 
-  window.addEventListener('resize', handleResize)
+  document.addEventListener('click', (e) => {
+    const drawer = document.getElementById('drawer-navigation')
+    const toggleButton = document.getElementById('drawer-toggle-btn')
+    if (
+        drawerOpen.value &&
+        isMobile.value &&
+        !drawer.contains(e.target) &&
+        !toggleButton.contains(e.target)
+    ) {
+      drawerOpen.value = false
+    }
+  })
 })
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-})
-
-const handleResize = () => {
-  isMobile.value = window.innerWidth < 768
-  if (!isMobile.value) drawerOpen.value = true
-}
 
 const toggleDrawer = () => {
   drawerOpen.value = !drawerOpen.value
@@ -30,6 +34,12 @@ const toggleDrawer = () => {
 
 const closeDrawer = () => {
   if (isMobile.value) drawerOpen.value = false
+}
+
+
+const selectTopic = (id) => {
+  activeTopicId.value = id
+  closeDrawer()
 }
 </script>
 
@@ -58,7 +68,7 @@ const closeDrawer = () => {
             drawerOpen ? 'translate-x-0' : '-translate-x-full'
           ]"
            id="drawer-navigation" tabindex="-1" aria-labelledby="drawer-navigation-label">
-        <!-- محتوای drawer مثل قبل -->
+
         <h5 id="drawer-navigation-label" class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Menu</h5>
         <button @click="toggleDrawer" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 end-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
           <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
@@ -103,9 +113,17 @@ const closeDrawer = () => {
 
 
               <ul class="flex-1 overflow-y-auto space-y-1  text-sm">
-                <li v-for="t in topics" :key="t.id" class="p-2 cursor-pointer hover:bg-neutral-700 rounded-ee-lg ">
-                  <router-link :to="{name:'chat',params:{id:t.id}}">
-                  {{ t.title }}
+                <li
+                    v-for="t in topics"
+                    :key="t.id"
+                    :class="['p-2 cursor-pointer hover:bg-neutral-700 rounded-ee-lg', activeTopicId === t.id ? 'bg-neutral-300 dark:bg-neutral-600' : '']"
+                >
+                  <router-link
+                      :to="{name:'chat', params:{id: t.id}}"
+                      @click="selectTopic(t.id)"
+                      class="block w-full"
+                  >
+                    {{ t.title }}
                   </router-link>
                 </li>
               </ul>
