@@ -19,7 +19,7 @@ const openai = new OpenAI({
 const newMessage = ref("")
 
 
-const theme = ref('dark'); // حالت پیشفرض
+const theme = ref('dark');
 const toggleTheme = () => {
   theme.value = theme.value === 'light' ? 'dark' : 'light';
   localStorage.setItem('theme', theme.value);
