@@ -10,6 +10,13 @@ const drawerOpen = ref(true)
 onMounted(() => {
   const savedTopics = localStorage.getItem("topics")
   if (savedTopics) topics.value = JSON.parse(savedTopics)
+
+  if (window.innerWidth < 768) { // mobile
+    drawerOpen.value = false
+  } else { // desktop
+    drawerOpen.value = true
+  }
+
 })
 
 const toggleDrawer = () => {
@@ -145,7 +152,7 @@ const toggleDrawer = () => {
 
 
     </div>
-    <div class="tracking-widest text-xl pr-10 text-white ">ANITA RAMAZI</div>
+    <div class="tracking-widest text-xl pr-10 text-white font-[Monoton]">ANITA</div>
   </aside>
 
 
