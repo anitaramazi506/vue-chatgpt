@@ -31,8 +31,7 @@ const toggleDrawer = () => {
   <!-- navbar -->
   <aside class="h-15 w-full bg-neutral-700 fixed top-0 right-0 flex justify-between items-center z-1000">
     <div class="pl-5 flex items-center">
-
-      <!-- toggle button  drawer -->
+      <!-- toggle button -->
       <button @click="toggleDrawer" class="text-white hover:bg-neutral-700 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-neutral-700 focus:outline-none" type="button">
         <svg class="w-10 h-10 text-neutral-800 dark:text-white" xmlns="http://www.w3.org/2000/svg"
              width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -47,7 +46,7 @@ const toggleDrawer = () => {
           ]"
            id="drawer-navigation" tabindex="-1" aria-labelledby="drawer-navigation-label">
 
-        <h5 id="drawer-navigation-label" class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Menu</h5>
+      <h5 id="drawer-navigation-label" class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Menu</h5>
 
         <!-- close button  drawer -->
         <button @click="toggleDrawer" type="button" aria-controls="drawer-navigation" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 end-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
