@@ -1,37 +1,50 @@
 <script setup>
-
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ref, onMounted } from 'vue'
 
 const topics = ref([])
-
 const drawerOpen = ref(true)
+const isMobile = ref(window.innerWidth < 768)
 
 onMounted(() => {
   const savedTopics = localStorage.getItem("topics")
   if (savedTopics) topics.value = JSON.parse(savedTopics)
 
-  if (window.innerWidth < 768) { // mobile
-    drawerOpen.value = false
-  } else { // desktop
-    drawerOpen.value = true
-  }
+  drawerOpen.value = !isMobile.value
 
+  window.addEventListener('resize', handleResize)
 })
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 768
+  if (!isMobile.value) drawerOpen.value = true
+}
 
 const toggleDrawer = () => {
   drawerOpen.value = !drawerOpen.value
+}
+
+const closeDrawer = () => {
+  if (isMobile.value) drawerOpen.value = false
 }
 </script>
 
 <template>
 
-  <!-- navbar -->
+
+  <!-- overlay موبایل -->
+  <div v-if="drawerOpen && isMobile"
+       @click="closeDrawer"
+       class="fixed inset-0 bg-neutral-700 bg-opacity-50 z-30"></div>
 
   <!-- navbar -->
   <aside class="h-15 w-full bg-neutral-700 fixed top-0 right-0 flex justify-between items-center z-1000">
     <div class="pl-5 flex items-center">
-      <!-- toggle button -->
+      <!-- toggle button  drawer -->
       <button @click="toggleDrawer" class="text-white hover:bg-neutral-700 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-neutral-700 focus:outline-none" type="button">
         <svg class="w-10 h-10 text-neutral-800 dark:text-white" xmlns="http://www.w3.org/2000/svg"
              width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -45,15 +58,12 @@ const toggleDrawer = () => {
             drawerOpen ? 'translate-x-0' : '-translate-x-full'
           ]"
            id="drawer-navigation" tabindex="-1" aria-labelledby="drawer-navigation-label">
-
-      <h5 id="drawer-navigation-label" class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Menu</h5>
-
-        <!-- close button  drawer -->
-        <button @click="toggleDrawer" type="button" aria-controls="drawer-navigation" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 end-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
+        <!-- محتوای drawer مثل قبل -->
+        <h5 id="drawer-navigation-label" class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Menu</h5>
+        <button @click="toggleDrawer" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 end-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
           <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
           <span class="sr-only">Close menu</span>
         </button>
-
         <div class="py-4 overflow-y-auto">
           <ul class="space-y-2 font-medium">
             <li>
