@@ -145,7 +145,7 @@ const toggleDrawer = () => {
 
 
     </div>
-    <div class="tracking-widest text-xl pr-10 text-white font-[Monoton]">ANITA</div>
+    <div class="tracking-widest text-xl pr-10 text-white ">ANITA RAMAZI</div>
   </aside>
 
 
