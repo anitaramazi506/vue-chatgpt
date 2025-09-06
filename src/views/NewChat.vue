@@ -1,6 +1,6 @@
 <script setup>
 
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 
 
 import OpenAI from 'openai';
@@ -18,6 +18,21 @@ const openai = new OpenAI({
 
 const newMessage = ref("")
 
+
+const theme = ref('dark'); // حالت پیشفرض
+const toggleTheme = () => {
+  theme.value = theme.value === 'light' ? 'dark' : 'light';
+  localStorage.setItem('theme', theme.value);
+  document.documentElement.classList.toggle('dark', theme.value === 'dark');
+};
+
+onMounted(() => {
+
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) theme.value = savedTheme;
+  document.documentElement.classList.toggle('dark', theme.value === 'dark');
+
+})
 
 
 const createChat = async () => {
@@ -76,7 +91,7 @@ const createChat = async () => {
 </script>
 
 <template>
-  <div class="h-full min-h-screen w-full bg-neutral-700 flex flex-col items-end justify-center p-5">
+  <div :class="[theme, 'h-full min-h-screen w-full flex flex-col items-end justify-center p-5']">
     <!-- message box -->
 
 
@@ -86,13 +101,9 @@ const createChat = async () => {
          border-neutral-600 shadow-2xl p-3 flex items-center transition-all
          duration-200 hover:shadow-3xl left-0 right-0 mx-4 md:mx-auto md:w-[1000px]">
 
-      <button
-          class="text-white text-xl cursor-pointer hover:bg-neutral-700 bg-neutral-800 flex items-center justify-center rounded-full h-10 w-10 px-1">
-        <svg class="w-6 h-6 text-neutral-800 dark:text-white" xmlns="http://www.w3.org/2000/svg"
-             width="24" height="24" fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 12h14m-7 7V5"/>
-        </svg>
+      <button @click="toggleTheme" class="text-white bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center rounded-full h-10 w-10 mr-2">
+        <span v-if="theme==='light'">🌙</span>
+        <span v-else>☀️</span>
       </button>
 
       <input v-model="newMessage" type="text" placeholder="Ask anything"
