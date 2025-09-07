@@ -1,13 +1,14 @@
 <script setup>
 
-import {onMounted, ref} from 'vue';
-
+import {onMounted, onUpdated, ref} from 'vue';
+import senderMsg from "../components/senderMsg.vue";
+import aiMsg from "../components/aiMsg.vue";
 
 import OpenAI from 'openai';
-import { useRouter, useRoute } from 'vue-router'
+import {useRouter, useRoute} from 'vue-router'
 
 const router = useRouter()
-const route = useRoute()
+
 
 const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
@@ -17,6 +18,7 @@ const openai = new OpenAI({
 
 
 const newMessage = ref("")
+const messages = ref([])
 
 
 const theme = ref('dark');
@@ -45,6 +47,14 @@ const createChat = async () => {
 
 
   try {
+    messages.value.push(
+        {
+          role: 'user',
+          content: message,
+          time: new Date().toLocaleTimeString()
+        }
+    )
+
     const completion = await openai.chat.completions.create({
       model: 'openai/gpt-4o-mini',
       messages: [
@@ -55,31 +65,29 @@ const createChat = async () => {
       ]
     })
 
+
+
     const response = completion.choices[0].message.content;
     let topic = {
       id: Date.now(),
       title: message.slice(0, 20) || "New Chat",
     }
     let storage = JSON.parse(localStorage.getItem('topics')) ?? [];
-    storage.unshift({
-      ...topic,
-      messages : [
-        {
-          role: 'user',
-          content: message,
-        },
+    messages.value.push(
         {
           role: 'assistant',
           content: response,
+          time: new Date().toLocaleTimeString()
         }
-      ]
+    );
+    storage.unshift({
+      ...topic,
+      messages: messages.value
     });
 
 
-
-
     localStorage.setItem("topics", JSON.stringify(storage));
-    router.push({name:'chat' , params:{id:topic.id}});
+    router.push({name: 'chat', params: {id: topic.id}});
   } catch (err) {
     console.error("API Error:", err)
     await pushAiMessageTyping("error")
@@ -94,25 +102,38 @@ const createChat = async () => {
   <div :class="[theme, 'h-full min-h-screen w-full flex flex-col items-end justify-center p-5']">
     <!-- message box -->
 
-
+    <div
+        ref="messagesContainer"
+        class="md:max-w-4xl w-full pt-35 pb-2 md:mx-auto overflow-y-auto h-[80vh] scroll-smooth"
+        @scroll="checkScrollPosition"
+    >
+      <div v-for="(msg, index) in messages" :key="index">
+        <senderMsg v-if="msg.role === 'user'" :text="msg.content" :time="msg.time"/>
+        <aiMsg v-else :text="msg.content" :time="msg.time"/>
+      </div>
+      <div v-if="messages.length === 0" class="text-center text-neutral-400 py-4">
+        no message
+      </div>
+    </div>
 
     <!-- inputBox -->
     <div class="md:m-left-5 fixed bottom-5 px-5 bg-neutral-800 rounded-full border
          border-neutral-600 shadow-2xl p-3 flex items-center transition-all
          duration-200 hover:shadow-3xl left-0 right-0 mx-4 md:mx-auto md:w-[1000px]">
 
-      <button @click="toggleTheme" class="text-white bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center rounded-full h-10 w-10 mr-2">
+      <button @click="toggleTheme"
+              class="text-white bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center rounded-full h-10 w-10 mr-2">
         <span v-if="theme==='light'">🌙</span>
         <span v-else>☀️</span>
       </button>
 
       <input v-model="newMessage" type="text" placeholder="Ask anything"
              class="flex-1 bg-neutral-800 text-white px-4 py-2 rounded-full
-             focus:outline-none focus:ring-0 border-none font-bold" ref="inputRef" @keyup.enter="createChat" />
+             focus:outline-none focus:ring-0 border-none font-bold" ref="inputRef" @keyup.enter="createChat"/>
 
       <button @click="createChat" class="text-white text-xl cursor-pointer bg-neutral-800 flex items-center
              justify-center rounded-full h-10 w-10 px-1 hover:bg-neutral-700"
-             >
+      >
         <svg class="w-6 h-6 text-neutral-800 dark:text-white" xmlns="http://www.w3.org/2000/svg"
              width="24" height="24" fill="none" viewBox="0 0 24 24">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

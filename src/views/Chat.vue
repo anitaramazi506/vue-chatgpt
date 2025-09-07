@@ -9,7 +9,7 @@ const router = useRouter();
 const props = defineProps({ id: { type: String } });
 
 
-const theme = ref('dark'); // حالت پیشفرض
+const theme = ref('dark');
 const toggleTheme = () => {
   theme.value = theme.value === 'light' ? 'dark' : 'light';
   localStorage.setItem('theme', theme.value);
